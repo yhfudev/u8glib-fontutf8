@@ -1,20 +1,20 @@
 /*
   Fontname: -gnu-unifont-medium-r-normal--16-160-75-75-c-80-iso10646-1
   Copyright: 
-  Capital A Height: 16, '1' Height: 16
-  Calculated Max Values w=16 h=16 x= 1 y= 0 dx=16 dy= 0 ascent=14 len=32
+  Capital A Height: 0, '1' Height: 0
+  Calculated Max Values w=15 h=16 x= 1 y= 0 dx=16 dy= 0 ascent=14 len=32
   Font Bounding box     w=16 h=16 x= 0 y=-2
   Calculated Min Values           x= 0 y=-2 dx= 0 dy= 0
-  Pure Font   ascent =16 descent=-2
-  X Font      ascent =16 descent=-2
+  Pure Font   ascent = 0 descent= 0
+  X Font      ascent = 0 descent= 0
   Max Font    ascent =14 descent=-2
 */
 #include "utility/u8g.h"
 const u8g_fntpgm_uint8_t fontpage_191[4815] U8G_FONT_SECTION("fontpage_191") = {
-  0,16,16,0,254,16,9,183,14,65,0,127,254,14,254,16,
-  254,16,16,32,16,0,254,170,170,0,1,128,0,0,1,128,
-  0,74,81,234,80,90,81,201,158,0,1,128,0,0,1,128,
-  0,0,1,128,0,85,85,15,16,32,16,0,254,8,0,8,
+  0,16,16,0,254,0,0,0,0,0,128,255,0,14,254,0,
+  0,15,16,32,16,0,254,8,128,8,64,16,0,39,252,72,
+  64,8,64,16,64,48,64,87,252,144,64,16,64,16,64,16,
+  64,16,64,31,254,16,0,15,16,32,16,0,254,8,0,8,
   0,19,254,32,32,72,32,8,32,17,32,49,32,81,60,145,
   32,17,32,17,32,17,32,17,32,23,254,16,0,15,16,32,
   16,0,254,8,0,9,248,17,8,33,8,73,8,9,248,17,

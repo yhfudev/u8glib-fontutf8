@@ -38,7 +38,7 @@ DN_CUR=$(pwd)
 rm tmpa tmpb
 grep -Hrn _U8GT . | grep -v "#define" | sed 's/^.*_U8GT([ \w\t]*"\(.*\)"[ \w\t]*).*$/\1/' | ${DN_EXEC}/genpages  | sort | uniq | \
   while read PAGE ; do \
-    ${DN_EXEC}/bdf2u8g -b 0 -e 127 -l ${PAGE} ${DN_EXEC}/unifont.bdf fontpage_${PAGE} fontpage_${PAGE}.h ;\
+    ${DN_EXEC}/bdf2u8g -b 128 -e 255 -u ${PAGE} ${DN_EXEC}/unifont.bdf fontpage_${PAGE} fontpage_${PAGE}.h ;\
     sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' fontpage_${PAGE}.h
     echo "#include \"fontpage_${PAGE}.h\"" >> tmpa ;\
     echo "FONTDATA_ITEM(${PAGE}, fontpage_${PAGE})," >> tmpb ;\

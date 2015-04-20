@@ -243,7 +243,7 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
             break;
         }
         buf[0] = (uint8_t)(val & 0x7F);
-        buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data by bdf2u8g -b 128 -e 255 -u ${PAGE} ....
+        //buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data by bdf2u8g -b 128 -e 255 -u ${PAGE} ....
         fntpqm = (u8g_fntpgm_uint8_t *)fontdata_find (val);
         if (NULL == fntpqm) {
             //continue;

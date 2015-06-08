@@ -83,20 +83,21 @@ grep -Hrn _U8GT . | grep -v "#define" | grep '"' | \
   sort -k 1n -k 2n | uniq | \
   gawk -v EXEC_PREFIX=${DN_EXEC} -f tmp-proc-page.awk | \
   while read PAGE BEGIN END; do \
-    if [ ! -f ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h ]; then \
-      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${DN_EXEC}/unifont.bdf fontpage_${PAGE}_${BEGIN} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h > /dev/null 2>&1 ;\
-      sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h ;\
+    if [ ! -f ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
+      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${DN_EXEC}/unifont.bdf fontpage_${PAGE}_${BEGIN}_${END} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;\
+      sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ;\
     fi ;\
-    cp ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h .
-    echo "#include \"fontpage_${PAGE}_${BEGIN}.h\"" >> tmpa ;\
-    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN})," >> tmpb ;\
+    grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ;\
+    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END})," >> tmpb ;\
   done
 
-echo "#include \"fontutf8u8g.h\"" > fontutf8-data-sample.h
-echo "" >> fontutf8-data-sample.h
-cat tmpa >> fontutf8-data-sample.h
-echo "" >> fontutf8-data-sample.h
-echo "#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}" >> fontutf8-data-sample.h
-echo "u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data-sample.h
-cat tmpb >> fontutf8-data-sample.h
-echo "};" >> fontutf8-data-sample.h
+rm -f fontutf8-data.h
+echo "#include <utility/u8g.h>" >> fontutf8-data.h
+echo "#include \"fontutf8u8g.h\"" >> fontutf8-data.h
+echo "" >> fontutf8-data.h
+cat tmpa >> fontutf8-data.h
+echo "" >> fontutf8-data.h
+echo "#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}" >> fontutf8-data.h
+echo "u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data.h
+cat tmpb >> fontutf8-data.h
+echo "};" >> fontutf8-data.h

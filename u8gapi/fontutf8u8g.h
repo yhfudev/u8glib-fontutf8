@@ -4,7 +4,7 @@
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2015-02-19
- * @copyright Yunhui Fu (2015)
+ * @copyright GPL
  */
 #ifndef FONTUTF8U8G_H
 #define FONTUTF8U8G_H
@@ -26,7 +26,8 @@
 
 #define DEFAULT_FONT u8g_font_fub11
 
-extern int fontdata_register (int page, const u8g_fntpgm_uint8_t * fntdata, int size);
+extern int fontinfo_init (void);
+
 extern void utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg);
 
 #endif // FONTUTF8U8G_H

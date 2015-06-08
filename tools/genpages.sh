@@ -38,7 +38,7 @@ DN_CUR=$(pwd)
 rm tmpa tmpb
 #rm -f ${DN_EXEC}/fontpage_*.h
 rm -f fontpage_*.h
-grep -Hrn _U8GT . | grep -v "#define" | sed 's/^.*_U8GT([ \w\t]*"\(.*\)"[ \w\t]*).*$/\1/' | ${DN_EXEC}/genpages  | sort | uniq | \
+grep -Hrn _U8GT . | grep -v "#define" | sed 's/^.*_U8GT([ \w\t]*"\(.*\)"[ \w\t]*).*$/\1/' | ${DN_EXEC}/genpages | sort | uniq | \
   while read PAGE ; do \
     if [ ! -f ${DN_EXEC}/fontpage_${PAGE}.h ]; then \
       ${DN_EXEC}/bdf2u8g -b 128 -e 255 -u ${PAGE} ${DN_EXEC}/unifont.bdf fontpage_${PAGE} ${DN_EXEC}/fontpage_${PAGE}.h > /dev/null 2>&1 ;\
@@ -53,7 +53,7 @@ echo "#include \"fontutf8u8g.h\"" > fontutf8-data-sample.h
 echo "" >> fontutf8-data-sample.h
 cat tmpa >> fontutf8-data-sample.h
 echo "" >> fontutf8-data-sample.h
-echo "#define FONTDATA_ITEM(page, data) {page, NUM_ARRAY(data), data}" >> fontutf8-data-sample.h
-echo "const fontdata_t g_fontdata[] = {" >> fontutf8-data-sample.h
+echo "#define FONTDATA_ITEM(page, data) {page, 128, 255, NUM_ARRAY(data), data}" >> fontutf8-data-sample.h
+echo "const u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data-sample.h
 cat tmpb >> fontutf8-data-sample.h
 echo "};" >> fontutf8-data-sample.h

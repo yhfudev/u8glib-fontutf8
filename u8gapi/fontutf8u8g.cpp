@@ -4,7 +4,7 @@
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2015-02-19
- * @copyright Yunhui Fu (2015)
+ * @copyright GPL
  */
 
 //#include <Arduino.h>
@@ -14,29 +14,33 @@
 
 #define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
 
-typedef struct _fontdata_t {
+int fontdata_register (int page, const u8g_fntpgm_uint8_t * fntdata, int size);
+
+typedef struct _u8g_fontinfo_t {
     int page;
+    int begin;
+    int end;
     int size;
     const u8g_fntpgm_uint8_t *fntdata;
-} fontdata_t;
+} u8g_fontinfo_t;
 
 #if 1
-#define g_fontdata_size NUM_ARRAY(g_fontdata)
+#define g_fontinfo_size NUM_ARRAY(g_fontinfo)
 
 /*
 #include "chinese_164u.c"
 #include "chinese_242u.c"
 #define FONTDATA_ITEM(page, data) {page, NUM_ARRAY(data), data}
-const fontdata_t g_fontdata[] = {
+const u8g_fontinfo_t g_fontinfo[] = {
     FONTDATA_ITEM(164, chinese_164u),
     FONTDATA_ITEM(242, chinese_242u),
 };*/
 #include "fontutf8-data.h"
 
 #else
-fontdata_t * g_fontdata = NULL;
-int g_fontdata_size = 0;
-int g_fontdata_max = 0;
+u8g_fontinfo_t * g_fontinfo = NULL;
+int g_fontinfo_size = 0;
+int g_fontinfo_max = 0;
 //#define FONTDATA_REGISTER(page, name) fontdata_register(page, name, NUM_ARRAY(name))
 #endif
 
@@ -174,32 +178,38 @@ get_utf8_value (uint8_t *pstart, wchar_t *pval)
 }
 
 int
+fontinfo_init (void)
+{
+    return 0;
+}
+
+int
 fontdata_register (int page, const u8g_fntpgm_uint8_t * fntdata, int size)
 {
-#ifdef g_fontdata_size
+#ifdef g_fontinfo_size
     return -1;
 #else
-    if (NULL == g_fontdata) {
-        g_fontdata_size = 0;
-        g_fontdata_max = 0;
+    if (NULL == g_fontinfo) {
+        g_fontinfo_size = 0;
+        g_fontinfo_max = 0;
     }
-    if (g_fontdata_size >= g_fontdata_max) {
-        int nextsize = g_fontdata_size + 10;
-        g_fontdata = (fontdata_t *) realloc (g_fontdata, nextsize * sizeof (g_fontdata[0]));
-        if (NULL == g_fontdata) {
+    if (g_fontinfo_size >= g_fontinfo_max) {
+        int nextsize = g_fontinfo_size + 10;
+        g_fontinfo = (u8g_fontinfo_t *) realloc (g_fontinfo, nextsize * sizeof (g_fontinfo[0]));
+        if (NULL == g_fontinfo) {
             return -1;
         }
-        g_fontdata_max = nextsize;
+        g_fontinfo_max = nextsize;
     }
-    g_fontdata[g_fontdata_size].page = page;
-    g_fontdata[g_fontdata_size].size = size;
-    g_fontdata[g_fontdata_size].fntdata = fntdata;
+    g_fontinfo[g_fontinfo_size].page = page;
+    g_fontinfo[g_fontinfo_size].size = size;
+    g_fontinfo[g_fontinfo_size].fntdata = fntdata;
     return 0;
 #endif
 }
 
 const u8g_fntpgm_uint8_t *
-fontdata_find (wchar_t val)
+fontinfo_find (wchar_t val)
 {
     int i;
     // calculate the page
@@ -208,17 +218,18 @@ fontdata_find (wchar_t val)
     if (val < 128) {
         return DEFAULT_FONT; //u8g_font_gdr25;
     }
-    if (NULL == g_fontdata) {
+    if (NULL == g_fontinfo) {
         return NULL;
     }
+    fontinfo_init();
 
-    for (i = 0; i < g_fontdata_size; i ++) {
-        if (page == g_fontdata[i].page) {
+    for (i = 0; i < g_fontinfo_size; i ++) {
+        if (page == g_fontinfo[i].page) {
             break;
         }
     }
-    if (i < g_fontdata_size) {
-        return g_fontdata[i].fntdata;
+    if (i < g_fontinfo_size) {
+        return g_fontinfo[i].fntdata;
     }
     return NULL;
 }
@@ -244,7 +255,7 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
         }
         buf[0] = (uint8_t)(val & 0x7F);
         buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data by bdf2u8g -b 128 -e 255 -u ${PAGE} ....
-        fntpqm = (u8g_fntpgm_uint8_t *)fontdata_find (val);
+        fntpqm = (u8g_fntpgm_uint8_t *)fontinfo_find (val);
         if (NULL == fntpqm) {
             //continue;
             buf[0] = '?';

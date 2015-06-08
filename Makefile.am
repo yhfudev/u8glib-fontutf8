@@ -62,7 +62,7 @@ tools/genpages.sh: genpages
 fontutf8/fontutf8-data.h: tools/genpages.sh
 	cd fontutf8 && ../tools/genpages.sh
 	touch $@
-u8gapi/fontutf8u8g.cpp: fontutf8/fontutf8-data.h
+fontutf8/fontutf8.cpp: fontutf8/fontutf8-data.h
 
 fonttest_CFLAGS=-Ifontutf8 -DU8G_RASPBERRY_PI @U8G_CFLAGS@
 fonttest_CPPFLAGS=-Ifontutf8 -DU8G_RASPBERRY_PI $(U8G_CFLAGS)

@@ -10,7 +10,6 @@
 //#include <Arduino.h>
 #include <U8glib.h>
 
-#include "rbtree.h"
 #include "fontutf8u8g.h"
 
 #undef offsetof
@@ -22,23 +21,13 @@
 #define FALSE 0
 #define TRUE  1
 
-typedef struct _u8g_fontinfo_t {
-    int page;
-    int begin;
-    int end;
-    int size;
-    const u8g_fntpgm_uint8_t *fntdata;
-
-    struct rb_node node;
-} u8g_fontinfo_t;
-
+#if DEBUG
 #define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
-
-#define g_fontinfo_size NUM_ARRAY(g_fontinfo)
-#include "fontutf8-data.h"
-
-struct rb_root g_fontinfo_root = RB_ROOT;
-char flag_fontinfo_inited = 0;
+#define TRACE(fmt, ...) fprintf (stdout, "[%s()] " fmt " {ln:%d, fn:" __FILE__ "}\n", __func__, ##__VA_ARGS__, __LINE__)
+#else
+#define assert(a)
+#define TRACE(...)
+#endif
 
 wchar_t
 get_val_utf82uni (uint8_t *pstart)
@@ -173,6 +162,9 @@ get_utf8_value (uint8_t *pstart, wchar_t *pval)
     return p;
 }
 
+struct rb_root g_fontinfo_root = RB_ROOT;
+char flag_fontinfo_inited = 0;
+
 /* return v1 - v2 */
 int
 fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
@@ -221,28 +213,17 @@ fontinfo_insert(struct rb_root *root, u8g_fontinfo_t *data)
 }
 
 int
-fontinfo_init_internal (u8g_fontinfo_t * fntinfo, int number)
+fontinfo_init (u8g_fontinfo_t * fntinfo, int number)
 {
-    struct rb_root *root = &g_fontinfo_root;
     int i;
+    struct rb_root *root = &g_fontinfo_root;
 
     for (i = 0; i < number; i ++) {
         fontinfo_insert (root, &fntinfo[i]);
     }
-    return 0;
-}
+    flag_fontinfo_inited = 1;
 
-int
-fontinfo_init (void)
-{
-    int ret = 0;
-    if (! flag_fontinfo_inited) {
-        ret = fontinfo_init_internal(g_fontinfo, NUM_ARRAY(g_fontinfo));
-    }
-    if (ret >= 0) {
-        flag_fontinfo_inited = 1;
-    }
-    return ret;
+    return 0;
 }
 
 const u8g_fntpgm_uint8_t *
@@ -250,17 +231,16 @@ fontinfo_find (wchar_t val)
 {
     struct rb_root *root = &g_fontinfo_root;
     struct rb_node *node = root->rb_node;
-    int i;
+
     // calculate the page
     u8g_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
 
+    if (flag_fontinfo_inited == 0) {
+        return NULL;
+    }
     if (val < 128) {
         return DEFAULT_FONT; //u8g_font_gdr25;
     }
-    if (NULL == g_fontinfo) {
-        return NULL;
-    }
-    fontinfo_init();
 
     while (node) {
         int result;
@@ -296,21 +276,27 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
         val = 0;
         p = get_utf8_value(p, &val);
         if (NULL == p) {
+            TRACE("No more char, break ...");
             break;
         }
+        TRACE("got char=%d", (int)val);
         buf[0] = (uint8_t)(val & 0x7F);
-        buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data by bdf2u8g -b 128 -e 255 -u ${PAGE} ....
         fntpqm = (u8g_fntpgm_uint8_t *)fontinfo_find (val);
         if (NULL == fntpqm) {
             //continue;
             buf[0] = '?';
-            pdev->setFont (DEFAULT_FONT);
-        } else {
-            pdev->setFont (fntpqm);
+            fntpqm = (u8g_fntpgm_uint8_t *)DEFAULT_FONT;
+            TRACE("Unknown char, use default font");
         }
+        if (DEFAULT_FONT != fntpqm) {
+            buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data
+        }
+        TRACE("set font: %p; (default=%p)", fntpqm, DEFAULT_FONT);
+        pdev->setFont (fntpqm);
 
         pdev->drawStr(x, y, (char *) buf);
         x += pdev->getStrWidth((char *)buf);
+        TRACE("next pos= %d", x);
     }
 }
 

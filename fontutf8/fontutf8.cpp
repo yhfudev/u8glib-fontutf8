@@ -19,6 +19,8 @@
 #endif
 
 #include "fontutf8u8g.h"
+#include "fontutf8-data.h"
+
 
 #if 0
 #define OLED_MOSI   9 // SDA
@@ -60,6 +62,7 @@ void setup(void) {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 #endif
+  fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
 }
 
 void u8g_ascii_1() {

@@ -160,7 +160,6 @@ utf8_parse (const char* msg, unsigned int len)
     uint8_t *pend = NULL;
     uint8_t *p;
     wchar_t val;
-    uint8_t buf[2] = {0, 0};
     int page;
 
     pend = (uint8_t *)msg + len;

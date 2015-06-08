@@ -171,7 +171,7 @@ utf8_parse (const char* msg, unsigned int len)
             break;
         }
         page = val / 128;
-        if (page > 0) fprintf (stdout, "%d\n", page);
+        if (page > 0) fprintf (stdout, "%d %d\n", page, (val % 128));
     }
 }
 

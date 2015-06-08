@@ -10,11 +10,17 @@
 //#include <Arduino.h>
 #include <U8glib.h>
 
+#include "rbtree.h"
 #include "fontutf8u8g.h"
 
-#define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
+#undef offsetof
+#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#define container_of(ptr, type, member) ({                      \
+        const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+        (type *)( (char *)__mptr - offsetof(type,member) );})
 
-int fontdata_register (int page, const u8g_fntpgm_uint8_t * fntdata, int size);
+#define FALSE 0
+#define TRUE  1
 
 typedef struct _u8g_fontinfo_t {
     int page;
@@ -22,27 +28,17 @@ typedef struct _u8g_fontinfo_t {
     int end;
     int size;
     const u8g_fntpgm_uint8_t *fntdata;
+
+    struct rb_node node;
 } u8g_fontinfo_t;
 
-#if 1
-#define g_fontinfo_size NUM_ARRAY(g_fontinfo)
+#define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
 
-/*
-#include "chinese_164u.c"
-#include "chinese_242u.c"
-#define FONTDATA_ITEM(page, data) {page, NUM_ARRAY(data), data}
-const u8g_fontinfo_t g_fontinfo[] = {
-    FONTDATA_ITEM(164, chinese_164u),
-    FONTDATA_ITEM(242, chinese_242u),
-};*/
+#define g_fontinfo_size NUM_ARRAY(g_fontinfo)
 #include "fontutf8-data.h"
 
-#else
-u8g_fontinfo_t * g_fontinfo = NULL;
-int g_fontinfo_size = 0;
-int g_fontinfo_max = 0;
-//#define FONTDATA_REGISTER(page, name) fontdata_register(page, name, NUM_ARRAY(name))
-#endif
+struct rb_root g_fontinfo_root = RB_ROOT;
+char flag_fontinfo_inited = 0;
 
 wchar_t
 get_val_utf82uni (uint8_t *pstart)
@@ -177,43 +173,86 @@ get_utf8_value (uint8_t *pstart, wchar_t *pval)
     return p;
 }
 
+/* return v1 - v2 */
 int
-fontinfo_init (void)
+fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
 {
+    assert (NULL != v1);
+    assert (NULL != v2);
+    if (v1->page < v2->page) {
+        return -1;
+    } else if (v1->page > v2->page) {
+        return 1;
+    }
+    if (v1->end < v2->begin) {
+        return -1;
+    } else if (v1->begin > v2->end) {
+        return 1;
+    }
+    return 0;
+}
+
+static int
+fontinfo_insert(struct rb_root *root, u8g_fontinfo_t *data)
+{
+    struct rb_node **new1 = &(root->rb_node), *parent = NULL;
+
+    // Figure out where to put new node
+    while (*new1) {
+        u8g_fontinfo_t *this1 = container_of(*new1, u8g_fontinfo_t, node);
+
+        int result = fontinfo_compare (data, this1);
+
+        parent = *new1;
+        if (result < 0) {
+            new1 = &((*new1)->rb_left);
+        } else if (result > 0) {
+            new1 = &((*new1)->rb_right);
+        } else {
+            return FALSE;
+        }
+    }
+
+    // Add new node and rebalance tree.
+    rb_link_node(&data->node, parent, new1);
+    rb_insert_color(&data->node, root);
+
+    return TRUE;
+}
+
+int
+fontinfo_init_internal (u8g_fontinfo_t * fntinfo, int number)
+{
+    struct rb_root *root = &g_fontinfo_root;
+    int i;
+
+    for (i = 0; i < number; i ++) {
+        fontinfo_insert (root, &fntinfo[i]);
+    }
     return 0;
 }
 
 int
-fontdata_register (int page, const u8g_fntpgm_uint8_t * fntdata, int size)
+fontinfo_init (void)
 {
-#ifdef g_fontinfo_size
-    return -1;
-#else
-    if (NULL == g_fontinfo) {
-        g_fontinfo_size = 0;
-        g_fontinfo_max = 0;
+    int ret = 0;
+    if (! flag_fontinfo_inited) {
+        ret = fontinfo_init_internal(g_fontinfo, NUM_ARRAY(g_fontinfo));
     }
-    if (g_fontinfo_size >= g_fontinfo_max) {
-        int nextsize = g_fontinfo_size + 10;
-        g_fontinfo = (u8g_fontinfo_t *) realloc (g_fontinfo, nextsize * sizeof (g_fontinfo[0]));
-        if (NULL == g_fontinfo) {
-            return -1;
-        }
-        g_fontinfo_max = nextsize;
+    if (ret >= 0) {
+        flag_fontinfo_inited = 1;
     }
-    g_fontinfo[g_fontinfo_size].page = page;
-    g_fontinfo[g_fontinfo_size].size = size;
-    g_fontinfo[g_fontinfo_size].fntdata = fntdata;
-    return 0;
-#endif
+    return ret;
 }
 
 const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
+    struct rb_root *root = &g_fontinfo_root;
+    struct rb_node *node = root->rb_node;
     int i;
     // calculate the page
-    int page = val / 128;
+    u8g_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
 
     if (val < 128) {
         return DEFAULT_FONT; //u8g_font_gdr25;
@@ -223,13 +262,19 @@ fontinfo_find (wchar_t val)
     }
     fontinfo_init();
 
-    for (i = 0; i < g_fontinfo_size; i ++) {
-        if (page == g_fontinfo[i].page) {
-            break;
+    while (node) {
+        int result;
+        u8g_fontinfo_t *data = container_of(node, u8g_fontinfo_t, node);
+
+        result = fontinfo_compare (&vcmp, data);
+
+        if (result < 0) {
+            node = node->rb_left;
+        } else if (result > 0) {
+            node = node->rb_right;
+        } else {
+            return data->fntdata;
         }
-    }
-    if (i < g_fontinfo_size) {
-        return g_fontinfo[i].fntdata;
     }
     return NULL;
 }

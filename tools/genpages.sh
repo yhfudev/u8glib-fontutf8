@@ -38,22 +38,65 @@ DN_CUR=$(pwd)
 rm tmpa tmpb
 #rm -f ${DN_EXEC}/fontpage_*.h
 rm -f fontpage_*.h
-grep -Hrn _U8GT . | grep -v "#define" | sed 's/^.*_U8GT([ \w\t]*"\(.*\)"[ \w\t]*).*$/\1/' | ${DN_EXEC}/genpages | sort | uniq | \
-  while read PAGE ; do \
-    if [ ! -f ${DN_EXEC}/fontpage_${PAGE}.h ]; then \
-      ${DN_EXEC}/bdf2u8g -b 128 -e 255 -u ${PAGE} ${DN_EXEC}/unifont.bdf fontpage_${PAGE} ${DN_EXEC}/fontpage_${PAGE}.h > /dev/null 2>&1 ;\
-      sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}.h ;\
+
+cat << EOF > tmp-proc-page.awk
+BEGIN {
+    cur_page=0;
+    val_begin=0;
+    val_pre=0;
+}{
+    page=\$1;
+    val_real=\$2;
+    # assert (val_real < 128);
+    val=val_real + 128;
+    if (cur_page != page) {
+        if (cur_page != 0) {
+            if (val_begin != 0) {
+                print cur_page " " val_begin " " val_pre;
+            }
+        }
+        cur_page=page;
+        val_begin=val;
+        val_pre=val;
+    } else {
+        if (val_pre + 1 != val) {
+            if (cur_page != 0) {
+                print cur_page " " val_begin " " val_pre;
+            }
+            val_begin=val;
+            val_pre=val;
+        } else {
+            val_pre = val;
+        }
+    }
+} END {
+    if (cur_page != 0) {
+        print cur_page " " val_begin " " val_pre;
+    }
+}
+EOF
+
+
+grep -Hrn _U8GT . | grep -v "#define" | grep '"' | \
+  sed 's/^.*_U8GT([ \w\t]*"\([^)]*\)"[ \w\t]*).*$/\1/' | \
+  ${DN_EXEC}/genpages | \
+  sort -k 1n -k 2n | uniq | \
+  gawk -v EXEC_PREFIX=${DN_EXEC} -f tmp-proc-page.awk | \
+  while read PAGE BEGIN END; do \
+    if [ ! -f ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h ]; then \
+      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${DN_EXEC}/unifont.bdf fontpage_${PAGE}_${BEGIN} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h > /dev/null 2>&1 ;\
+      sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h ;\
     fi ;\
-    cp ${DN_EXEC}/fontpage_${PAGE}.h .
-    echo "#include \"fontpage_${PAGE}.h\"" >> tmpa ;\
-    echo "    FONTDATA_ITEM(${PAGE}, fontpage_${PAGE})," >> tmpb ;\
+    cp ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}.h .
+    echo "#include \"fontpage_${PAGE}_${BEGIN}.h\"" >> tmpa ;\
+    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN})," >> tmpb ;\
   done
 
 echo "#include \"fontutf8u8g.h\"" > fontutf8-data-sample.h
 echo "" >> fontutf8-data-sample.h
 cat tmpa >> fontutf8-data-sample.h
 echo "" >> fontutf8-data-sample.h
-echo "#define FONTDATA_ITEM(page, data) {page, 128, 255, NUM_ARRAY(data), data}" >> fontutf8-data-sample.h
-echo "const u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data-sample.h
+echo "#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}" >> fontutf8-data-sample.h
+echo "u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data-sample.h
 cat tmpb >> fontutf8-data-sample.h
 echo "};" >> fontutf8-data-sample.h

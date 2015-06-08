@@ -3,8 +3,8 @@
  * @brief   font api test for u8g lib
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
- * @date    2015-02-19
- * @copyright Yunhui Fu (2015)
+ * @date    2015-04-19
+ * @copyright GPL
  */
 #if defined(ARDUINO) && ARDUINO >= 100
 #include <Arduino.h>
@@ -36,7 +36,12 @@
 #define U8GVAL_CS    OLED_CS
 #define U8GVAL_A0    OLED_DC
 #define U8GVAL_RESET OLED_RESET
-U8GLIB_SH1106_128X64 u8g(U8GVAL_SCK, U8GVAL_MOSI, U8GVAL_CS, U8GVAL_A0, U8GVAL_RESET);
+
+//U8GLIB_SH1106_128X64 u8g(U8GVAL_SCK, U8GVAL_MOSI, U8GVAL_CS, U8GVAL_A0, U8GVAL_RESET);
+
+//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);
+// 或者
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_NO_ACK|U8G_I2C_OPT_FAST);
 
 void u8g_prepare(void) {
   u8g.setFont(u8g_font_6x10);
@@ -65,7 +70,7 @@ void u8g_ascii_1() {
 
 
 void u8g_chinese() {
-  char s[] = _U8GT("忍");
+  char s[] = _U8GT("可");
   u8g.drawStr( 0, 0, "Chinese Glyph");
   utf8_draw (&u8g, 10, 30, s);
 }
@@ -86,7 +91,7 @@ void draw(void) {
 }
 
 void loop(void) {
-  // picture loop  
+  // picture loop
   u8g.firstPage();  
   do {
     draw();

@@ -80,8 +80,10 @@ void u8g_ascii_1() {
 
 void u8g_chinese() {
   char s[] = _U8GT("显示屏测试1");
+  char s2[] = _U8GT("abcd123测试2");
   u8g.drawStr( 0, 0, "Chinese Glyph");
   utf8_draw (&u8g, 10, 30, s);
+  utf8_draw (&u8g, 10, 48, s2);
 }
 
 uint8_t draw_state = 0;
@@ -116,6 +118,7 @@ void loop(void) {
 
 }
 
+#if ! defined(ARDUINO)
 int
 main(void)
 {
@@ -126,4 +129,5 @@ main(void)
   return 0;
 }
 
+#endif
 

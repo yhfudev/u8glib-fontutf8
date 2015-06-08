@@ -58,10 +58,8 @@ fonttest_SOURCES= \
     $(NULL)
 
 tools/genpages.sh: genpages
-	touch $@
 fontutf8/fontutf8-data.h: tools/genpages.sh
 	cd fontutf8 && ../tools/genpages.sh
-	touch $@
 fontutf8/fontutf8.cpp: fontutf8/fontutf8-data.h
 
 fonttest_CFLAGS=-Ifontutf8 -DU8G_RASPBERRY_PI @U8G_CFLAGS@

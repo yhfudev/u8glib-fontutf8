@@ -28,7 +28,9 @@
 //#include <linux/rbtree.h>
 #include "rbtree.h"
 
+#ifndef __always_inline
 #define __always_inline
+#endif
 #define new new2
 
 /*

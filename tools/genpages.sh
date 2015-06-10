@@ -30,13 +30,51 @@ else
     DN_EXEC="${DN_EXEC}/"
 fi
 #####################################################################
+EXEC_GENPAGES=${DN_EXEC}/genpages
+if [ ! -x "${EXEC_GENPAGES}" ]; then
+    EXEC_GENPAGES="$(my_getpath ${DN_EXEC}/../genpages)"
+    echo "EXEC_GENPAGES=${EXEC_GENPAGES}"
+fi
+if [ ! -x "${EXEC_GENPAGES}" ]; then
+    echo "Error: not found genpages!"
+    exit 1
+fi
 
-FN_FONT=${DN_EXEC}/unifont.bdf
-FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
+EXEC_BDF2U8G=${DN_EXEC}/bdf2u8g
+if [ ! -x "${EXEC_BDF2U8G}" ]; then
+    EXEC_BDF2U8G=$(which bdf2u8g)
+fi
+if [ ! -x "${EXEC_BDF2U8G}" ]; then
+    echo "Error: not found bdf2u8g!"
+    exit 1
+fi
+
+#####################################################################
+#FN_FONT_BASE=unifont
+FN_FONT_BASE=wenquanyi_12pt
+FN_FONT=${DN_EXEC}/${FN_FONT_BASE}.bdf
+if [ ! -f "${FN_FONT}" ]; then
+    if [ -f "/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.bdf" ]; then
+        FN_FONT="/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.bdf"
+    else if [ -f "/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.pcf" ]; then
+        EXEC_PCF2BDF=$(which pcf2bdf)
+        if [ ! -x "${EXEC_PCF2BDF}" ]; then
+            echo "Error: not found pcf2bdf!"
+            exit 1
+        fi
+        ${EXEC_PCF2BDF} -o "${FN_FONT}" "/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.pcf"
+    fi fi
+fi
+if [ ! -f "${FN_FONT}" ]; then
+    echo "Error: not found font ${FN_FONT}!"
+    exit 1
+fi
+
+#####################################################################
 
 DN_CUR=$(pwd)
 
-(cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
+#(cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
 
 rm tmpa tmpb
 #rm -f ${DN_EXEC}/fontpage_*.h
@@ -81,12 +119,12 @@ EOF
 
 grep -Hrn _U8GT . | grep -v "#define" | grep '"' | \
   sed 's/^.*_U8GT([ \w\t]*"\([^)]*\)"[ \w\t]*).*$/\1/' | \
-  ${DN_EXEC}/genpages | \
+  ${EXEC_GENPAGES} | \
   sort -k 1n -k 2n | uniq | \
   gawk -v EXEC_PREFIX=${DN_EXEC} -f tmp-proc-page.awk | \
   while read PAGE BEGIN END; do \
     if [ ! -f ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
-      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
+      ${EXEC_BDF2U8G} -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
       #sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ;
     fi ;\
     grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ;\
@@ -103,3 +141,5 @@ echo "#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY
 echo "u8g_fontinfo_t g_fontinfo[] = {" >> fontutf8-data.h
 cat tmpb >> fontutf8-data.h
 echo "};" >> fontutf8-data.h
+
+rm -f tmpa tmpb tmp-proc-page.awk

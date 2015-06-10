@@ -130,7 +130,7 @@ void uiStep(void) {
 
 void loop(void) {
   // picture loop
-  u8g.firstPage();  
+  u8g.firstPage();
   do {
     draw();
     //delay(200);

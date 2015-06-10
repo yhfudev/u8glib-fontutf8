@@ -64,7 +64,13 @@ nodist_program_SOURCES = fontutf8test/fontutf8-data.h
 fontutf8test/fontutf8-data.h: fontutf8test/fontutf8test.cpp tools/genpages.sh
 	cd fontutf8test && ../tools/genpages.sh
 
-tools/genpages.sh: genpages
+tools/genpages.sh: genpages tools/wenquanyi_12pt.bdf
+
+tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz:
+	cd tools && wget http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
+
+tools/wenquanyi_12pt.bdf: tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
+	cd tools && tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz && cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf .
 
 #u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT -DU8G_RASPBERRY_PI -DU8G_WITH_PINLIST @U8G_CFLAGS@
 u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT @U8G_CFLAGS@

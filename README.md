@@ -19,21 +19,6 @@ They should use the updated drawStr() function or utf8_draw() to display the str
 Installation and usages
 -----------------------
 
-
-Prepare BDF font files, you may download a font from WQY, for example: http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
-
-tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
-cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf tools/
-
-change the font file name in the bash script tools/genpages.sh
-
-    FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
-
-generate the font file fontutf8-data.h
-
-    cd src
-    ../tools/genpages.sh
-
 include the file in your source code:
     #include "fontutf8-data.h"
 
@@ -47,4 +32,19 @@ declare all of the string in macro _U8GT(), for example:
      char s[] = _U8GT("黄沙百戰穿金甲，不破樓蘭終不還。");
     // and draw the string:
     utf8_draw (&u8g, 3, 30, s);
+
+
+Prepare BDF font files, you may download a font from WQY, for example: http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
+
+    tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
+    cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf tools/
+
+change the font file name in the bash script tools/genpages.sh
+
+    FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
+
+generate the font file fontutf8-data.h
+
+    cd src
+    ../tools/genpages.sh
 

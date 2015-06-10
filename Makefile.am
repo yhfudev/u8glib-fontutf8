@@ -52,6 +52,7 @@ genpages_SOURCES= \
     $(NULL)
 
 u8gsdl_fontutf8test_SOURCES= \
+    fontutf8test/fontutf8-data.h \
     fontutf8test/fontutf8test.cpp \
     src/fontutf8u8g.cpp \
     src/rbtree.cpp \
@@ -60,11 +61,10 @@ u8gsdl_fontutf8test_SOURCES= \
 BUILT_SOURCES = fontutf8test/fontutf8-data.h
 CLEANFILES = fontutf8test/fontutf8-data.h
 nodist_program_SOURCES = fontutf8test/fontutf8-data.h
-fontutf8test/fontutf8-data.h: tools/genpages.sh
+fontutf8test/fontutf8-data.h: fontutf8test/fontutf8test.cpp tools/genpages.sh
 	cd fontutf8test && ../tools/genpages.sh
 
 tools/genpages.sh: genpages
-fontutf8test/fontutf8test.cpp: fontutf8test/fontutf8-data.h
 
 #u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT -DU8G_RASPBERRY_PI -DU8G_WITH_PINLIST @U8G_CFLAGS@
 u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT @U8G_CFLAGS@

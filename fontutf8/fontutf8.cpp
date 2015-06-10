@@ -6,21 +6,31 @@
  * @date    2015-04-19
  * @copyright GPL
  */
+#define USE_SDL 0
 #if defined(ARDUINO)
+
 #if ARDUINO >= 100
 #include <Arduino.h>
 #else
 #include <WProgram.h>
 #endif
 #include <U8glib.h>
-#else
+
+#elif defined(U8G_RASPBERRY_PI)
 #include <unistd.h>
-#define delay(a) usleep(a)
+#define delay(a) usleep((a) * 1000)
+
+#else
+#undef USE_SDL
+#define USE_SDL 1
+#define delay(a) SDL_Delay((a))
 #endif
+
 
 #include "fontutf8u8g.h"
 #include "fontutf8-data.h"
 
+#if defined(ARDUINO) || defined(U8G_RASPBERRY_PI)
 
 #if 0
 #define OLED_MOSI   9 // SDA
@@ -44,10 +54,16 @@
 #define U8GVAL_RESET OLED_RESET
 //U8GLIB_SH1106_128X64 u8g(U8GVAL_SCK, U8GVAL_MOSI, U8GVAL_CS, U8GVAL_A0, U8GVAL_RESET);
 
+
 U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);
 // 或者
 //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_NO_ACK|U8G_I2C_OPT_FAST);
+
+#else
+// SDL
+U8GLIB u8g(&u8g_dev_sdl_2bit);
+#endif
 
 void u8g_prepare(void) {
   u8g.setFont(u8g_font_6x10);
@@ -101,13 +117,26 @@ void draw(void) {
   u8g_chinese();
 }
 
+// calculate new output values
+void uiStep(void) {
+#if USE_SDL
+    int key = u8g_sdl_get_key();
+    switch (key) {
+    case 'q':
+    case ' ':
+        exit(0);
+    }
+#endif
+}
+
 void loop(void) {
   // picture loop
   u8g.firstPage();  
   do {
     draw();
+    //delay(200);
   } while( u8g.nextPage() );
-  
+  uiStep();
   // increase the state
   draw_state++;
   if ( draw_state > 9*8 )

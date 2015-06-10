@@ -5,7 +5,7 @@
 # This script will generate u8g c files for specified fonts
 #
 # Copyright 2015 Yunhui Fu
-# License: GPL v3.0 or later
+# License: GPL/BSD
 #####################################################################
 my_getpath () {
   PARAM_DN="$1"
@@ -30,6 +30,9 @@ else
     DN_EXEC="${DN_EXEC}/"
 fi
 #####################################################################
+
+FN_FONT=${DN_EXEC}/unifont.bdf
+FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
 
 DN_CUR=$(pwd)
 
@@ -76,7 +79,6 @@ BEGIN {
 }
 EOF
 
-
 grep -Hrn _U8GT . | grep -v "#define" | grep '"' | \
   sed 's/^.*_U8GT([ \w\t]*"\([^)]*\)"[ \w\t]*).*$/\1/' | \
   ${DN_EXEC}/genpages | \
@@ -84,15 +86,15 @@ grep -Hrn _U8GT . | grep -v "#define" | grep '"' | \
   gawk -v EXEC_PREFIX=${DN_EXEC} -f tmp-proc-page.awk | \
   while read PAGE BEGIN END; do \
     if [ ! -f ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
-      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${DN_EXEC}/unifont.bdf fontpage_${PAGE}_${BEGIN}_${END} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;\
-      sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ;\
+      ${DN_EXEC}/bdf2u8g -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
+      #sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h ;
     fi ;\
     grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_EXEC}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ;\
     echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END})," >> tmpb ;\
   done
 
 rm -f fontutf8-data.h
-echo "#include <utility/u8g.h>" >> fontutf8-data.h
+echo "#include <u8g.h>" >> fontutf8-data.h
 echo "#include \"fontutf8u8g.h\"" >> fontutf8-data.h
 echo "" >> fontutf8-data.h
 cat tmpa >> fontutf8-data.h

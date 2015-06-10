@@ -4,19 +4,13 @@
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2015-02-19
- * @copyright GPL
+ * @copyright GPL/BSD
  */
 
 //#include <Arduino.h>
 #include <U8glib.h>
 
 #include "fontutf8u8g.h"
-
-#undef offsetof
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#define container_of(ptr, type, member) ({                      \
-        const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define FALSE 0
 #define TRUE  1
@@ -27,6 +21,13 @@
 #else
 #define assert(a)
 #define TRACE(...)
+#endif
+
+#if USE_RBTREE_LINUX
+#else
+
+
+
 #endif
 
 wchar_t
@@ -299,4 +300,3 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
         TRACE("next pos= %d", x);
     }
 }
-

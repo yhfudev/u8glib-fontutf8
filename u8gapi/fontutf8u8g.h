@@ -4,7 +4,7 @@
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2015-02-19
- * @copyright GPL
+ * @copyright GPL/BSD
  */
 #ifndef FONTUTF8U8G_H
 #define FONTUTF8U8G_H
@@ -20,7 +20,14 @@
  */
 
 #include <U8glib.h>
+
+#define USE_RBTREE_LINUX 1
+
+#if USE_RBTREE_LINUX
 #include "rbtree.h"
+#else
+#include "tree-bsd.h"
+#endif
 
 #define NUM_ARRAY(a) (sizeof(a)/sizeof(a[0]))
 #define _U8GT(a) a
@@ -38,7 +45,11 @@ typedef struct _u8g_fontinfo_t {
     int size;
     const u8g_fntpgm_uint8_t *fntdata;
 
+#if USE_RBTREE_LINUX
     struct rb_node node;
+#else
+    
+#endif
 } u8g_fontinfo_t;
 
 #ifdef __cplusplus

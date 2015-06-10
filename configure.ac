@@ -47,6 +47,7 @@ fi
 # for u8g lib
 AC_SUBST([U8G_CFLAGS])
 AC_SUBST([U8G_LDFLAGS])
+AC_SUBST([U8G_PREFIX])
 AC_SUBST([U8G_LIBDIR])
 AC_SUBST([U8G_INCLUDE])
 
@@ -74,8 +75,9 @@ AC_ARG_WITH([u8g-include],
     [U8G_INCLUDE="$withval"], [U8G_INCLUDE="$u8g_prefix/"]
 ) dnl AC_ARG_WITH
 
-U8G_CFLAGS+=" -I$U8G_INCLUDE -I$u8g_prefix/include"
-U8G_LDFLAGS="-L$U8G_LIBDIR"
+U8G_PREFIX="$u8g_prefix"
+U8G_CFLAGS+=" -I$U8G_INCLUDE -I$u8g_prefix/include -I$u8g_prefix/utility/ -I$u8g_prefix/csrc -I$u8g_prefix/cppsrc -I$u8g_prefix/nonarduino"
+U8G_LDFLAGS="-L$U8G_LIBDIR -L$u8g_prefix/lib"
 
 
 # Checks for typedefs, structures, and compiler characteristics.

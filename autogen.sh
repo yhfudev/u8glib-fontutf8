@@ -64,6 +64,8 @@ fi
 
 #${DN_EXEC}configure --enable-debug
 #./configure --enable-debug --with-u8g=../u8glib-1.16
+#./configure --enable-debug --with-u8g=../git-hg/u8glib-hg
+#./configure --enable-debug --with-u8g=/usr
 #make clean
 #make
 

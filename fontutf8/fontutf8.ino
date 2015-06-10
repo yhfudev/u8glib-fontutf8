@@ -4,15 +4,7 @@
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2015-04-19
- * @copyright GPL
- */
-/**
- * @file    fontutf8.cpp
- * @brief   font api test for u8g lib
- * @author  Yunhui Fu (yhfudev@gmail.com)
- * @version 1.0
- * @date    2015-04-19
- * @copyright GPL
+ * @copyright GPL/BSD
  */
 #if defined(ARDUINO)
 #if ARDUINO >= 100

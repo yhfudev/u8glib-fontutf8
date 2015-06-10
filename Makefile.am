@@ -44,31 +44,38 @@ EXT_FLAGS+= -DSVN_VERSION='"${GITNUMTMP}"'
 @MK@endif
 DEFS+=$(EXT_FLAGS)
 
-bin_PROGRAMS=fonttest genpages
+bin_PROGRAMS=genpages u8gsdl_fonttest
 
 genpages_SOURCES= \
     tools/genpages.c \
     tools/getline.c \
     $(NULL)
 
-fonttest_SOURCES= \
+u8gsdl_fonttest_SOURCES= \
     fontutf8/fontutf8.cpp \
     u8gapi/fontutf8u8g.cpp \
     u8gapi/rbtree.cpp \
     $(NULL)
 
-tools/genpages.sh: genpages
+BUILT_SOURCES = fontutf8/fontutf8-data.h
+CLEANFILES = fontutf8/fontutf8-data.h
+nodist_program_SOURCES = fontutf8/fontutf8-data.h
 fontutf8/fontutf8-data.h: tools/genpages.sh
 	cd fontutf8 && ../tools/genpages.sh
+
+tools/genpages.sh: genpages
 fontutf8/fontutf8.cpp: fontutf8/fontutf8-data.h
 
-fonttest_CFLAGS=-Ifontutf8 -DU8G_RASPBERRY_PI @U8G_CFLAGS@
-fonttest_CPPFLAGS=-Ifontutf8 -DU8G_RASPBERRY_PI $(U8G_CFLAGS)
-fonttest_LDFLAGS=$(U8G_LDFLAGS)
+u8gsdl_fonttest_CFLAGS=-Ifontutf8 -DU8G_16BIT -DU8G_RASPBERRY_PI -DU8G_WITH_PINLIST @U8G_CFLAGS@
+u8gsdl_fonttest_CFLAGS=-Ifontutf8 -DU8G_16BIT @U8G_CFLAGS@
+u8gsdl_fonttest_CPPFLAGS=$(u8gsdl_fonttest_CFLAGS)
+u8gsdl_fonttest_LDFLAGS=$(U8G_LDFLAGS)
 
 # force the autoconf use g++ to link the c program with c++ lib
 dummy.cpp:
 	touch $@
 
-#fonttest_LDADD = $(top_builddir)/src/libseederdict.la -ldl
-fonttest_LDADD = -lU8glib -lwiringPi
+u8gsdl_fonttest_LDADD = -lu8gbase -lu8gsdl
+#u8gsdl_fonttest_LDADD = -lu8gbase -lu8gwpi -lwiringPi
+#u8gsdl_fonttest_LDADD = @U8G_PREFIX@/libu8gwpi.la -lwiringPi
+#u8gsdl_fonttest_LDADD = @U8G_PREFIX@/libu8gsdl.la

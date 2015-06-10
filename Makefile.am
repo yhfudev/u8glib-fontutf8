@@ -44,38 +44,38 @@ EXT_FLAGS+= -DSVN_VERSION='"${GITNUMTMP}"'
 @MK@endif
 DEFS+=$(EXT_FLAGS)
 
-bin_PROGRAMS=genpages u8gsdl_fonttest
+bin_PROGRAMS=genpages u8gsdl_fontutf8test
 
 genpages_SOURCES= \
     tools/genpages.c \
     tools/getline.c \
     $(NULL)
 
-u8gsdl_fonttest_SOURCES= \
-    fontutf8/fontutf8.cpp \
-    u8gapi/fontutf8u8g.cpp \
-    u8gapi/rbtree.cpp \
+u8gsdl_fontutf8test_SOURCES= \
+    fontutf8test/fontutf8test.cpp \
+    src/fontutf8u8g.cpp \
+    src/rbtree.cpp \
     $(NULL)
 
-BUILT_SOURCES = fontutf8/fontutf8-data.h
-CLEANFILES = fontutf8/fontutf8-data.h
-nodist_program_SOURCES = fontutf8/fontutf8-data.h
-fontutf8/fontutf8-data.h: tools/genpages.sh
-	cd fontutf8 && ../tools/genpages.sh
+BUILT_SOURCES = fontutf8test/fontutf8-data.h
+CLEANFILES = fontutf8test/fontutf8-data.h
+nodist_program_SOURCES = fontutf8test/fontutf8-data.h
+fontutf8test/fontutf8-data.h: tools/genpages.sh
+	cd fontutf8test && ../tools/genpages.sh
 
 tools/genpages.sh: genpages
-fontutf8/fontutf8.cpp: fontutf8/fontutf8-data.h
+fontutf8test/fontutf8test.cpp: fontutf8test/fontutf8-data.h
 
-u8gsdl_fonttest_CFLAGS=-Ifontutf8 -DU8G_16BIT -DU8G_RASPBERRY_PI -DU8G_WITH_PINLIST @U8G_CFLAGS@
-u8gsdl_fonttest_CFLAGS=-Ifontutf8 -DU8G_16BIT @U8G_CFLAGS@
-u8gsdl_fonttest_CPPFLAGS=$(u8gsdl_fonttest_CFLAGS)
-u8gsdl_fonttest_LDFLAGS=$(U8G_LDFLAGS)
+#u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT -DU8G_RASPBERRY_PI -DU8G_WITH_PINLIST @U8G_CFLAGS@
+u8gsdl_fontutf8test_CFLAGS=-Ifontutf8test -Isrc -DU8G_16BIT @U8G_CFLAGS@
+u8gsdl_fontutf8test_CPPFLAGS=$(u8gsdl_fontutf8test_CFLAGS)
+u8gsdl_fontutf8test_LDFLAGS=$(U8G_LDFLAGS)
 
 # force the autoconf use g++ to link the c program with c++ lib
 dummy.cpp:
 	touch $@
 
-u8gsdl_fonttest_LDADD = -lu8gbase -lu8gsdl
-#u8gsdl_fonttest_LDADD = -lu8gbase -lu8gwpi -lwiringPi
-#u8gsdl_fonttest_LDADD = @U8G_PREFIX@/libu8gwpi.la -lwiringPi
-#u8gsdl_fonttest_LDADD = @U8G_PREFIX@/libu8gsdl.la
+u8gsdl_fontutf8test_LDADD = -lu8gbase -lu8gsdl
+#u8gsdl_fontutf8test_LDADD = -lu8gbase -lu8gwpi -lwiringPi
+#u8gsdl_fontutf8test_LDADD = @U8G_PREFIX@/libu8gwpi.la -lwiringPi
+#u8gsdl_fontutf8test_LDADD = @U8G_PREFIX@/libu8gsdl.la

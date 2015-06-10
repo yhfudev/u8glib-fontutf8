@@ -27,15 +27,15 @@ cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf tools/
 
 change the font file name in the bash script tools/genpages.sh
 
-FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
+    FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
 
 generate the font file fontutf8-data.h
 
-cd src
-../tools/genpages.sh
+    cd src
+    ../tools/genpages.sh
 
 include the file in your source code:
-#include "fontutf8-data.h"
+    #include "fontutf8-data.h"
 
 
 init the font data in setup() function
@@ -44,8 +44,7 @@ fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
 
 declare all of the string in macro _U8GT(), for example:
 
-char s[] = _U8GT("黄沙百戰穿金甲，不破樓蘭終不還。");
-
-and draw the string:
-utf8_draw (&u8g, 3, 30, s);
+     char s[] = _U8GT("黄沙百戰穿金甲，不破樓蘭終不還。");
+    // and draw the string:
+    utf8_draw (&u8g, 3, 30, s);
 

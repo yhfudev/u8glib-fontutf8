@@ -85,8 +85,8 @@ void u8g_chinese() {
   char s1[] = _U8GT("黄沙百戰穿金甲，");
   char s2[] = _U8GT("不破樓蘭終不還。");
   char buf[20] = _U8GT("Chinese Glyph");
-  printf (buf, "u32=%d,w=%d;s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
-  //sprintf (buf, "i=%d,l=%d;u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
+  sprintf (buf, "u32=%d,w=%d,s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
+  //sprintf (buf, "i=%d,l=%d,u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
   utf8_draw (&u8g, 0, 11, buf);
   utf8_draw (&u8g, 5, 30, s1);
   utf8_draw (&u8g, 5, 48, s2);

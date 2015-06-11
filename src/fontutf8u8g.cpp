@@ -12,6 +12,17 @@
 
 #include "fontutf8u8g.h"
 
+#if defined(ARDUINO)
+// there's overflow of the wchar_t due to the 2-byte size in Arduino
+// sizeof(wchar_t)=2; sizeof(size_t)=2; sizeof(uint32_t)=4;
+// sizeof(int)=2; sizeof(long)=4; sizeof(unsigned)=2;
+#define wchar_t uint32_t
+#else
+// x86_64
+// sizeof(wchar_t)=4; sizeof(size_t)=8; sizeof(uint32_t)=4;
+// sizeof(int)=4; sizeof(long)=8; sizeof(unsigned)=4;
+#endif
+
 #define FALSE 0
 #define TRUE  1
 

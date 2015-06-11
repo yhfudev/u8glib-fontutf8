@@ -23,7 +23,7 @@
 #else
 #undef USE_SDL
 #define USE_SDL 1
-#define delay(a) SDL_Delay((a))
+#define delay(a) SDL_Delay((a)*1000)
 #endif
 
 
@@ -81,34 +81,15 @@ void setup(void) {
   fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
 }
 
-void u8g_ascii_1() {
-  char s[2] = " ";
-  uint8_t x, y;
-  u8g.drawStr( 0, 0, "ASCII page 1");
-  for( y = 0; y < 6; y++ ) {
-    for( x = 0; x < 16; x++ ) {
-      s[0] = y*16 + x + 32;
-      u8g.drawStr(x*7, y*10+10, s);
-    }
-  }
-}
-
 void u8g_chinese() {
   char s1[] = _U8GT("黄沙百戰穿金甲，");
   char s2[] = _U8GT("不破樓蘭終不還。");
-  utf8_draw (&u8g, 0, 11, _U8GT("Chinese Glyph"));
+  char buf[20] = _U8GT("Chinese Glyph");
+  printf (buf, "u32=%d,w=%d;s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
+  //sprintf (buf, "i=%d,l=%d;u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
+  utf8_draw (&u8g, 0, 11, buf);
   utf8_draw (&u8g, 5, 30, s1);
   utf8_draw (&u8g, 5, 48, s2);
-}
-
-uint8_t draw_state = 0;
-
-void draw0(void) {
-  u8g_prepare();
-  switch(draw_state >> 3) {
-    case 6: u8g_ascii_1(); break;
-    case 9: u8g_chinese(); break;
-  }
 }
 
 void draw(void) {
@@ -133,14 +114,9 @@ void loop(void) {
   u8g.firstPage();
   do {
     draw();
-    //delay(200);
+    //delay(500);
   } while( u8g.nextPage() );
   uiStep();
-  // increase the state
-  draw_state++;
-  if ( draw_state > 9*8 )
-    draw_state = 0;
-  
   // rebuild the picture after some delay
   delay(500);
 

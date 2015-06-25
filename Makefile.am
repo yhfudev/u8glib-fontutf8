@@ -60,6 +60,7 @@ u8gsdl_fontutf8test_SOURCES= \
     fontutf8test/fontutf8test.cpp \
     src/fontutf8u8g.h \
     src/fontutf8u8g.cpp \
+    src/tree-bsd.h \
     src/rbtree.h \
     src/rbtree_augmented.h \
     src/rbtree.cpp \

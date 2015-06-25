@@ -1,5 +1,5 @@
 /**
- * @file    fontutf8u8g.c
+ * @file    fontutf8u8g.cpp
  * @brief   font api for u8g lib
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
@@ -289,6 +289,8 @@ fontinfo_find (wchar_t val)
     if (NULL != data) {
         return data->fntdata;
     }
+    // dump values:
+    // RB_FOREACH(data, _u8g_fontinfo_entries_t, root) printf("%d\n", data->fntdata);
 #endif
     return NULL;
 }

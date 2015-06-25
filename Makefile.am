@@ -71,9 +71,17 @@ u8gwpi_fontutf8test_SOURCES=$(u8gsdl_fontutf8test_SOURCES)
 BUILT_SOURCES = fontutf8test/fontutf8-data.h
 CLEANFILES = fontutf8test/fontutf8-data.h
 nodist_program_SOURCES = fontutf8test/fontutf8-data.h
-fontutf8test/fontutf8-data.h: fontutf8test/fontutf8test.cpp tools/genpages.sh
+fontutf8test/fontutf8-data.h: fontutf8test/fontutf8test.cpp tools/genpages.sh tools/unifont-7.0.06.bdf # tools/wenquanyi_12pt.bdf
 	cd fontutf8test && ../tools/genpages.sh
-tools/genpages.sh: genpages tools/wenquanyi_12pt.bdf
+tools/genpages.sh: genpages
+	touch tools/genpages.sh
+
+tools/unifont-7.0.06.bdf.gz:
+	cd tools && wget http://unifoundry.com/pub/unifont-7.0.06/font-builds/unifont-7.0.06.bdf.gz
+
+tools/unifont-7.0.06.bdf: tools/unifont-7.0.06.bdf.gz
+	cd tools && gunzip -c unifont-7.0.06.bdf.gz > unifont-7.0.06.bdf
+
 
 tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz:
 	cd tools && wget http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz

@@ -50,8 +50,8 @@ if [ ! -x "${EXEC_BDF2U8G}" ]; then
 fi
 
 #####################################################################
-#FN_FONT_BASE=unifont
-FN_FONT_BASE=wenquanyi_12pt
+FN_FONT_BASE=unifont
+#FN_FONT_BASE=wenquanyi_12pt
 FN_FONT=${DN_EXEC}/${FN_FONT_BASE}.bdf
 if [ ! -f "${FN_FONT}" ]; then
     if [ -f "/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.bdf" ]; then
@@ -63,6 +63,18 @@ if [ ! -f "${FN_FONT}" ]; then
             exit 1
         fi
         ${EXEC_PCF2BDF} -o "${FN_FONT}" "/usr/share/fonts/wenquanyi/${FN_FONT_BASE}.pcf"
+    fi fi
+fi
+if [ ! -f "${FN_FONT}" ]; then
+    if [ -f "/usr/share/fonts/misc/${FN_FONT_BASE}.bdf" ]; then
+        FN_FONT="/usr/share/fonts/misc/${FN_FONT_BASE}.bdf"
+    else if [ -f "/usr/share/fonts/misc/${FN_FONT_BASE}.pcf" ]; then
+        EXEC_PCF2BDF=$(which pcf2bdf)
+        if [ ! -x "${EXEC_PCF2BDF}" ]; then
+            echo "Error: not found pcf2bdf!"
+            exit 1
+        fi
+        ${EXEC_PCF2BDF} -o "${FN_FONT}" "/usr/share/fonts/misc/${FN_FONT_BASE}.pcf"
     fi fi
 fi
 if [ ! -f "${FN_FONT}" ]; then

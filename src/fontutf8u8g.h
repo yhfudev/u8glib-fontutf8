@@ -21,6 +21,8 @@
 
 #include <U8glib.h>
 
+extern void DrawUtf8Str (U8GLIB *pdev, unsigned int x, unsigned int y, const char *utf8_msg);
+
 #define USE_RBTREE_LINUX 0
 
 #if USE_RBTREE_LINUX
@@ -56,8 +58,13 @@ typedef struct _u8g_fontinfo_t {
 }
 #endif
 
-extern int fontinfo_init (u8g_fontinfo_t * fntinfo, int number);
+extern int fontinfo_init1 (u8g_fontinfo_t * fntinfo, int number);
+extern char fontinfo_isinited1(void);
+//void u8g_SetUtf8Fonts (u8g_fontinfo_t * fntinfo, int number);
+//char u8g_Utf8FontIsInited(void);
+#define u8g_SetUtf8Fonts1        fontinfo_init1
+#define u8g_Utf8FontIsInited1    fontinfo_isinited1
 
-extern void utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg);
+void u8g_DrawUtf8Str1 (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg);
 
 #endif // FONTUTF8U8G_H

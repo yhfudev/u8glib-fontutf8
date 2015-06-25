@@ -26,7 +26,6 @@
 #define delay(a) SDL_Delay((a)*1000)
 #endif
 
-
 #include "fontutf8u8g.h"
 #include "fontutf8-data.h"
 
@@ -78,7 +77,15 @@ void setup(void) {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 #endif
-  fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
+  u8g_SetUtf8Fonts1 (g_fontinfo, NUM_ARRAY(g_fontinfo));
+}
+
+void DrawUtf8Str1 (U8GLIB *this1, unsigned int x, unsigned int y, const char *utf8_msg);
+
+void
+DrawUtf8Str1 (U8GLIB *this1, unsigned int x, unsigned int y, const char *utf8_msg)
+{
+    u8g_DrawUtf8Str1 (this1->getU8g(), x, y, utf8_msg);
 }
 
 void u8g_chinese() {
@@ -87,9 +94,9 @@ void u8g_chinese() {
   char buf[20] = _U8GT("Chinese Glyph");
   sprintf (buf, "u32=%d,w=%d,s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
   //sprintf (buf, "i=%d,l=%d,u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
-  utf8_draw (&u8g, 0, 11, buf);
-  utf8_draw (&u8g, 5, 30, s1);
-  utf8_draw (&u8g, 5, 48, s2);
+  DrawUtf8Str1 (&u8g, 0, 11, buf);
+  DrawUtf8Str1 (&u8g, 5, 30, s1);
+  DrawUtf8Str1 (&u8g, 5, 48, s2);
 }
 
 void draw(void) {

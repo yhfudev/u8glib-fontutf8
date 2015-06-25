@@ -34,7 +34,7 @@
 #define TRACE(...)
 #endif
 
-wchar_t
+static wchar_t
 get_val_utf82uni (uint8_t *pstart)
 {
     size_t cntleft;
@@ -83,7 +83,7 @@ get_val_utf82uni (uint8_t *pstart)
  *
  * 转换 UTF-8 编码的一个字符为本地的 Unicode 字符(wchar_t)
  */
-uint8_t *
+static uint8_t *
 get_utf8_value (uint8_t *pstart, wchar_t *pval)
 {
     uint32_t val = 0;
@@ -187,14 +187,14 @@ fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
 }
 
 #if USE_RBTREE_LINUX
-struct rb_root g_fontinfo_root = RB_ROOT;
+static struct rb_root g_fontinfo_root = RB_ROOT;
 #else
 RB_HEAD(_u8g_fontinfo_entries_t, _u8g_fontinfo_t) g_fontinfo_root = RB_INITIALIZER(&g_fontinfo_root);
 RB_PROTOTYPE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
 RB_GENERATE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
 #endif
 
-char flag_fontinfo_inited = 0;
+static char flag_fontinfo_inited = 0;
 
 static int
 fontinfo_insert (void * root_arg, u8g_fontinfo_t *data)
@@ -230,7 +230,7 @@ fontinfo_insert (void * root_arg, u8g_fontinfo_t *data)
 }
 
 int
-fontinfo_init (u8g_fontinfo_t * fntinfo, int number)
+fontinfo_init1 (u8g_fontinfo_t * fntinfo, int number)
 {
     int i;
 
@@ -248,7 +248,16 @@ fontinfo_init (u8g_fontinfo_t * fntinfo, int number)
     return 0;
 }
 
-const u8g_fntpgm_uint8_t *
+/**
+ * @brief check if font is loaded
+ */
+char
+fontinfo_isinited1(void)
+{
+    return flag_fontinfo_inited;
+}
+
+static const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
     u8g_fontinfo_t *data = NULL;
@@ -295,8 +304,11 @@ fontinfo_find (wchar_t val)
     return NULL;
 }
 
+/**
+ * @brief draw a UTF-8 string
+ */
 void
-utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
+u8g_DrawUtf8Str1 (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg)
 {
     int len;
     uint8_t *pend = NULL;
@@ -305,10 +317,14 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
     uint8_t buf[2] = {0, 0};
     u8g_fntpgm_uint8_t * fntpqm = NULL;
 
-    //pdev->drawStr(x, y, msg);
-    len = strlen(msg);
-    pend = (uint8_t *)msg + len;
-    for (p = (uint8_t *)msg; p < pend; ) {
+    if (! fontinfo_isinited1()) {
+        u8g_DrawStr(pu8g, x, y, "Err: utf8 font not initialized.");
+        return;
+    }
+    //u8g_DrawStr(pu8g, x, y, utf8_msg);
+    len = strlen(utf8_msg);
+    pend = (uint8_t *)utf8_msg + len;
+    for (p = (uint8_t *)utf8_msg; p < pend; ) {
         val = 0;
         p = get_utf8_value(p, &val);
         if (NULL == p) {
@@ -328,10 +344,10 @@ utf8_draw (U8GLIB *pdev, unsigned int x, unsigned int y, const char *msg)
             buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data
         }
         TRACE("set font: %p; (default=%p)", fntpqm, DEFAULT_FONT);
-        pdev->setFont (fntpqm);
+        u8g_SetFont (pu8g, fntpqm);
 
-        pdev->drawStr(x, y, (char *) buf);
-        x += pdev->getStrWidth((char *)buf);
+        u8g_DrawStr(pu8g, x, y, (char *) buf);
+        x += u8g_GetStrWidth(pu8g, (char *)buf);
         TRACE("next pos= %d", x);
     }
 }

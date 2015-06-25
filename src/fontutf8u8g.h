@@ -21,7 +21,7 @@
 
 #include <U8glib.h>
 
-#define USE_RBTREE_LINUX 1
+#define USE_RBTREE_LINUX 0
 
 #if USE_RBTREE_LINUX
 #include "rbtree.h"
@@ -48,7 +48,7 @@ typedef struct _u8g_fontinfo_t {
 #if USE_RBTREE_LINUX
     struct rb_node node;
 #else
-    
+    RB_ENTRY(_u8g_fontinfo_t) node;
 #endif
 } u8g_fontinfo_t;
 

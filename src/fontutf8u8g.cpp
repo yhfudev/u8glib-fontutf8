@@ -34,13 +34,6 @@
 #define TRACE(...)
 #endif
 
-#if USE_RBTREE_LINUX
-#else
-
-
-
-#endif
-
 wchar_t
 get_val_utf82uni (uint8_t *pstart)
 {
@@ -174,11 +167,8 @@ get_utf8_value (uint8_t *pstart, wchar_t *pval)
     return p;
 }
 
-struct rb_root g_fontinfo_root = RB_ROOT;
-char flag_fontinfo_inited = 0;
-
 /* return v1 - v2 */
-int
+static int
 fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
 {
     assert (NULL != v1);
@@ -196,11 +186,22 @@ fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
     return 0;
 }
 
-static int
-fontinfo_insert(struct rb_root *root, u8g_fontinfo_t *data)
-{
-    struct rb_node **new1 = &(root->rb_node), *parent = NULL;
+#if USE_RBTREE_LINUX
+struct rb_root g_fontinfo_root = RB_ROOT;
+#else
+RB_HEAD(_u8g_fontinfo_entries_t, _u8g_fontinfo_t) g_fontinfo_root = RB_INITIALIZER(&g_fontinfo_root);
+RB_PROTOTYPE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
+RB_GENERATE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
+#endif
 
+char flag_fontinfo_inited = 0;
+
+static int
+fontinfo_insert (void * root_arg, u8g_fontinfo_t *data)
+{
+#if USE_RBTREE_LINUX
+    struct rb_root *root = (struct rb_root *) root_arg;
+    struct rb_node **new1 = &(root->rb_node), *parent = NULL;
     // Figure out where to put new node
     while (*new1) {
         u8g_fontinfo_t *this1 = container_of(*new1, u8g_fontinfo_t, node);
@@ -221,6 +222,10 @@ fontinfo_insert(struct rb_root *root, u8g_fontinfo_t *data)
     rb_link_node(&data->node, parent, new1);
     rb_insert_color(&data->node, root);
 
+#else
+    RB_INSERT(_u8g_fontinfo_entries_t, (struct _u8g_fontinfo_entries_t *) root_arg, data);
+#endif
+
     return TRUE;
 }
 
@@ -228,10 +233,15 @@ int
 fontinfo_init (u8g_fontinfo_t * fntinfo, int number)
 {
     int i;
+
+#if USE_RBTREE_LINUX
     struct rb_root *root = &g_fontinfo_root;
+#else
+    void * root = &g_fontinfo_root;
+#endif
 
     for (i = 0; i < number; i ++) {
-        fontinfo_insert (root, &fntinfo[i]);
+        fontinfo_insert ((void *)root, &fntinfo[i]);
     }
     flag_fontinfo_inited = 1;
 
@@ -241,11 +251,16 @@ fontinfo_init (u8g_fontinfo_t * fntinfo, int number)
 const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
-    struct rb_root *root = &g_fontinfo_root;
-    struct rb_node *node = root->rb_node;
-
+    u8g_fontinfo_t *data = NULL;
     // calculate the page
     u8g_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
+
+#if USE_RBTREE_LINUX
+    struct rb_root *root = &g_fontinfo_root;
+    struct rb_node *node = root->rb_node;
+#else
+    struct _u8g_fontinfo_entries_t * root = &g_fontinfo_root;
+#endif
 
     if (flag_fontinfo_inited == 0) {
         return NULL;
@@ -254,9 +269,10 @@ fontinfo_find (wchar_t val)
         return DEFAULT_FONT; //u8g_font_gdr25;
     }
 
+#if USE_RBTREE_LINUX
     while (node) {
         int result;
-        u8g_fontinfo_t *data = container_of(node, u8g_fontinfo_t, node);
+        data = container_of(node, u8g_fontinfo_t, node);
 
         result = fontinfo_compare (&vcmp, data);
 
@@ -268,6 +284,12 @@ fontinfo_find (wchar_t val)
             return data->fntdata;
         }
     }
+#else
+    data = RB_FIND (_u8g_fontinfo_entries_t, root, &vcmp);
+    if (NULL != data) {
+        return data->fntdata;
+    }
+#endif
     return NULL;
 }
 

@@ -169,7 +169,7 @@ get_utf8_value (uint8_t *pstart, wchar_t *pval)
 
 /* return v1 - v2 */
 static int
-fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
+fontinfo_compare (uxg_fontinfo_t * v1, uxg_fontinfo_t * v2)
 {
     assert (NULL != v1);
     assert (NULL != v2);
@@ -189,22 +189,22 @@ fontinfo_compare (u8g_fontinfo_t * v1, u8g_fontinfo_t * v2)
 #if USE_RBTREE_LINUX
 static struct rb_root g_fontinfo_root = RB_ROOT;
 #else
-RB_HEAD(_u8g_fontinfo_entries_t, _u8g_fontinfo_t) g_fontinfo_root = RB_INITIALIZER(&g_fontinfo_root);
-RB_PROTOTYPE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
-RB_GENERATE(_u8g_fontinfo_entries_t, _u8g_fontinfo_t, node, fontinfo_compare);
+RB_HEAD(_u8g_fontinfo_entries_t, _uxg_fontinfo_t) g_fontinfo_root = RB_INITIALIZER(&g_fontinfo_root);
+RB_PROTOTYPE(_u8g_fontinfo_entries_t, _uxg_fontinfo_t, node, fontinfo_compare);
+RB_GENERATE(_u8g_fontinfo_entries_t, _uxg_fontinfo_t, node, fontinfo_compare);
 #endif
 
 static char flag_fontinfo_inited = 0;
 
 static int
-fontinfo_insert (void * root_arg, u8g_fontinfo_t *data)
+fontinfo_insert (void * root_arg, uxg_fontinfo_t *data)
 {
 #if USE_RBTREE_LINUX
     struct rb_root *root = (struct rb_root *) root_arg;
     struct rb_node **new1 = &(root->rb_node), *parent = NULL;
     // Figure out where to put new node
     while (*new1) {
-        u8g_fontinfo_t *this1 = container_of(*new1, u8g_fontinfo_t, node);
+        uxg_fontinfo_t *this1 = container_of(*new1, uxg_fontinfo_t, node);
 
         int result = fontinfo_compare (data, this1);
 
@@ -230,7 +230,7 @@ fontinfo_insert (void * root_arg, u8g_fontinfo_t *data)
 }
 
 int
-fontinfo_init1 (u8g_fontinfo_t * fntinfo, int number)
+fontinfo_init1 (uxg_fontinfo_t * fntinfo, int number)
 {
     int i;
 
@@ -260,9 +260,9 @@ fontinfo_isinited1(void)
 static const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
-    u8g_fontinfo_t *data = NULL;
+    uxg_fontinfo_t *data = NULL;
     // calculate the page
-    u8g_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
+    uxg_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
 
 #if USE_RBTREE_LINUX
     struct rb_root *root = &g_fontinfo_root;
@@ -281,7 +281,7 @@ fontinfo_find (wchar_t val)
 #if USE_RBTREE_LINUX
     while (node) {
         int result;
-        data = container_of(node, u8g_fontinfo_t, node);
+        data = container_of(node, uxg_fontinfo_t, node);
 
         result = fontinfo_compare (&vcmp, data);
 
@@ -318,7 +318,7 @@ u8g_DrawUtf8Str1 (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_
     u8g_fntpgm_uint8_t * fntpqm = NULL;
 
     if (! fontinfo_isinited1()) {
-        u8g_DrawStr(pu8g, x, y, "Err: utf8 font not initialized.");
+        u8g_DrawStr(pu8g, x, y, "Err: pls init font first.");
         return;
     }
     //u8g_DrawStr(pu8g, x, y, utf8_msg);

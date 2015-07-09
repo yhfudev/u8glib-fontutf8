@@ -77,6 +77,7 @@ void setup(void) {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 #endif
+  u8g_prepare();
   u8g_SetUtf8Fonts1 (g_fontinfo, NUM_ARRAY(g_fontinfo));
 }
 
@@ -88,20 +89,42 @@ DrawUtf8Str1 (U8GLIB *this1, unsigned int x, unsigned int y, const char *utf8_ms
     u8g_DrawUtf8Str1 (this1->getU8g(), x, y, utf8_msg);
 }
 
+#define NUM_TYPE(a) (sizeof(a)/sizeof(a[0]))
+char * teststrings[] = {
+    _U8GT("黄沙百戰穿金甲"),
+    _U8GT("不破樓蘭終不還"),
+    _U8GT("abfgjlpyx"),
+    _U8GT("ナイン"),
+    _U8GT("セード ンウニユウアレマシタ"),
+    _U8GT("セードゼアリマセン"),
+    _U8GT("ヅドウセイシ"),
+    _U8GT("モーターデンゲン オフ"),
+    _U8GT("ゲンテンニイドウ"),
+    _U8GT("キヅユンオフセツトセツテイ"),
+    _U8GT("キヅユンセツト"),
+};
+
+int cnt = 0;
 void u8g_chinese() {
-  char s1[] = _U8GT("黄沙百戰穿金甲，");
-  char s2[] = _U8GT("不破樓蘭終不還。");
-  char buf[20] = _U8GT("Chinese Glyph");
-  sprintf (buf, "u32=%d,w=%d,s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
-  //sprintf (buf, "i=%d,l=%d,u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
-  DrawUtf8Str1 (&u8g, 0, 11, buf);
-  DrawUtf8Str1 (&u8g, 5, 30, s1);
-  DrawUtf8Str1 (&u8g, 5, 48, s2);
+    char * s1;
+    char * s2;
+    char * s3;
+    char buf[20] = _U8GT("UTF-8 Glyph");
+    //sprintf (buf, "u32=%d,w=%d,s=%d",sizeof(uint32_t),sizeof(wchar_t),sizeof(size_t));
+    //sprintf (buf, "i=%d,l=%d,u=%d",sizeof(int),sizeof(long),sizeof(unsigned));
+
+    s1 = buf;
+    s2 = teststrings[cnt];
+    s3 = teststrings[(cnt + 1) % NUM_TYPE(teststrings)];
+
+    DrawUtf8Str1 (&u8g, 5, 36, s2);
+    DrawUtf8Str1 (&u8g, 5, 54, s3);
+    //sprintf (buf, "ls=%d, wid=%d", u8g.getFontLineSpacing(), u8g.getUtf8StrPixelWidth(s3));
+    DrawUtf8Str1 (&u8g, 1, 18, s1);
 }
 
 void draw(void) {
-  u8g_prepare();
-  u8g_chinese();
+    u8g_chinese();
 }
 
 // calculate new output values
@@ -117,28 +140,28 @@ void uiStep(void) {
 }
 
 void loop(void) {
-  // picture loop
-  u8g.firstPage();
-  do {
-    draw();
-    //delay(500);
-  } while( u8g.nextPage() );
-  uiStep();
-  // rebuild the picture after some delay
-  delay(500);
+    // picture loop
+    cnt = (cnt + 1) % NUM_TYPE(teststrings);
 
+    u8g.firstPage();
+    do {
+        draw();
+    } while( u8g.nextPage() );
+    uiStep();
+    // rebuild the picture after some delay
+    delay(5000);
 }
 
 #if ! defined(ARDUINO)
 int
 main(void)
 {
-  setup();
-  while (1) {
-    loop();
-  }
-  return 0;
+    setup();
+    while (1) {
+        loop();
+        //usleep (1000000);
+    }
+    return 0;
 }
-
 #endif
 

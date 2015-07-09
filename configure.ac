@@ -17,6 +17,9 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
+#LT_PREREQ([2.2])
+#LT_INIT([shared static])
+#LT_INIT([disable-static])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdint.h stdlib.h string.h])

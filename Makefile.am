@@ -72,22 +72,31 @@ BUILT_SOURCES = fontutf8test/fontutf8-data.h
 CLEANFILES = fontutf8test/fontutf8-data.h
 nodist_program_SOURCES = fontutf8test/fontutf8-data.h
 fontutf8test/fontutf8-data.h: fontutf8test/fontutf8test.cpp tools/genpages.sh tools/unifont.bdf # tools/wenquanyi_12pt.bdf
-	cd fontutf8test && ../tools/genpages.sh
+	cd fontutf8test && ../tools/genpages.sh ../tools/unifont.bdf
 tools/genpages.sh: genpages
 	touch tools/genpages.sh
 
-tools/unifont-7.0.06.bdf.gz: tools
-	cd tools && wget http://unifoundry.com/pub/unifont-7.0.06/font-builds/unifont-7.0.06.bdf.gz
+tools/unifont-8.0.01.bdf.gz:
+	wget -c -O $@ http://ftp.gnu.org/gnu/unifont/unifont-8.0.01/unifont-8.0.01.bdf.gz
+	touch $@
 
-tools/unifont.bdf: tools/unifont-7.0.06.bdf.gz
-	cd tools && gunzip -c unifont-7.0.06.bdf.gz > unifont.bdf
+tools/unifont.bdf: tools/unifont-8.0.01.bdf.gz
+	gunzip -c $< > $@
 
 
-tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz:
+tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz: tools
 	cd tools && wget http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
+	touch wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
 
 tools/wenquanyi_12pt.bdf: tools/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
 	cd tools && tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz && cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf .
+
+tools/wqy-unibit-bdf-1.1.0-1.tar.gz: tools
+	cd tools && wget -c http://sourceforge.net/projects/wqy/files/wqy-unibit/1.1.0/wqy-unibit-bdf-1.1.0-1.tar.gz
+	touch wqy-unibit-bdf-1.1.0-1.tar.gz
+
+tools/wqy-unibit.bdf: tools/wqy-unibit-bdf-1.1.0-1.tar.gz
+	cd tools && tar -xvf wqy-unibit-bdf-1.1.0-1.tar.gz && cp wqy-unibit/wqy-unibit.bdf .
 
 # force the autoconf use g++ to link the c program with c++ lib
 dummy.cpp:

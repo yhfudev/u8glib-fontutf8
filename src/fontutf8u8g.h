@@ -40,7 +40,7 @@ extern void DrawUtf8Str (U8GLIB *pdev, unsigned int x, unsigned int y, const cha
 extern "C" {
 #endif
 
-typedef struct _u8g_fontinfo_t {
+typedef struct _uxg_fontinfo_t {
     int page;
     int begin;
     int end;
@@ -50,17 +50,17 @@ typedef struct _u8g_fontinfo_t {
 #if USE_RBTREE_LINUX
     struct rb_node node;
 #else
-    RB_ENTRY(_u8g_fontinfo_t) node;
+    RB_ENTRY(_uxg_fontinfo_t) node;
 #endif
-} u8g_fontinfo_t;
+} uxg_fontinfo_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-extern int fontinfo_init1 (u8g_fontinfo_t * fntinfo, int number);
+extern int fontinfo_init1 (uxg_fontinfo_t * fntinfo, int number);
 extern char fontinfo_isinited1(void);
-//void u8g_SetUtf8Fonts (u8g_fontinfo_t * fntinfo, int number);
+//void u8g_SetUtf8Fonts (uxg_fontinfo_t * fntinfo, int number);
 //char u8g_Utf8FontIsInited(void);
 #define u8g_SetUtf8Fonts1        fontinfo_init1
 #define u8g_Utf8FontIsInited1    fontinfo_isinited1

@@ -7,7 +7,7 @@
  * @copyright GPL/BSD
  */
 
-#include <stdio.h>
+#include <string.h>
 
 #include "fontutf8u8g.h"
 
@@ -32,6 +32,8 @@
 #define TRUE  1
 
 #if DEBUG
+#include <stdio.h>
+#include <stdlib.h>
 #define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
 #define TRACE(fmt, ...) fprintf (stdout, "[%s()] " fmt " {ln:%d, fn:" __FILE__ "}\n", __func__, ##__VA_ARGS__, __LINE__)
 #else
@@ -290,7 +292,7 @@ fontinfo_compare (uxg_fontinfo_t * v1, uxg_fontinfo_t * v2)
 
 /*"data_list[idx] - *data_pin"*/
 static int
-pf_bsearch_cb_comp_fntifo (void *userdata, size_t idx, void * data_pin)
+pf_bsearch_cb_comp_fntifo_pgm (void *userdata, size_t idx, void * data_pin)
 {
     uxg_fontinfo_t * fntinfo = (uxg_fontinfo_t *) userdata;
     uxg_fontinfo_t localval;
@@ -329,8 +331,6 @@ fontinfo_isinited1(void)
 static const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
-    uxg_fontinfo_t *data = NULL;
-    // calculate the page
     uxg_fontinfo_t vcmp = {val / 128, val % 128 + 128, val % 128 + 128, 0, 0};
     size_t idx = 0;
 
@@ -342,7 +342,7 @@ fontinfo_find (wchar_t val)
     }
 
     //int pf_bsearch_r (void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, void *data_pinpoint, size_t *ret_idx)
-    if (pf_bsearch_r (m_fntifo, m_fntinfo_num, pf_bsearch_cb_comp_fntifo, &vcmp, &idx) < 0) {
+    if (pf_bsearch_r ((void *)m_fntifo, m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void *)&vcmp, &idx) < 0) {
         return NULL;
     }
     return m_fntifo[idx].fntdata;

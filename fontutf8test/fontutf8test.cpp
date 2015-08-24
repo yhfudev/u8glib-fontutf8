@@ -31,6 +31,7 @@
 
 #if defined(ARDUINO) || defined(U8G_RASPBERRY_PI)
 
+
 #if 0
 #define OLED_MOSI   9 // SDA
 #define OLED_CLK   10 // SCL
@@ -54,10 +55,24 @@
 //U8GLIB_SH1106_128X64 u8g(U8GVAL_SCK, U8GVAL_MOSI, U8GVAL_CS, U8GVAL_A0, U8GVAL_RESET);
 
 
-U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
+//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);
 // 或者
-//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_NO_ACK|U8G_I2C_OPT_FAST);
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_NO_ACK|U8G_I2C_OPT_FAST);
+
+// the pins
+//https://www.youtube.com/watch?v=4CD8ERaylmY
+//U8GLIB_ST7920_128X64_1X u8g(13/*SCK=en, E1.5*/, 11/*MOSI, E1.3*/, 12/*CS, E1.4*/);	// SPI Com: SCK = en = 23, MOSI = rw = 17, CS = di = 16
+// E1.9 GND
+// E1.10 +5V
+
+/*
+Arduino digital pin
+
+clockPin --> SCK(EN) Arduino D13
+latchPin --> CS(RS)          D12
+dataPin --> SID(RW)          D11
+*/
 
 #else
 // SDL
@@ -72,7 +87,7 @@ void u8g_prepare(void) {
 }
 
 void setup(void) {
-#if 0
+#if defined(ARDUINO)
   Serial.begin(9600);
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
@@ -90,7 +105,7 @@ DrawUtf8Str1 (U8GLIB *this1, unsigned int x, unsigned int y, const char *utf8_ms
 }
 
 #define NUM_TYPE(a) (sizeof(a)/sizeof(a[0]))
-char * teststrings[] = {
+char * teststrings[11] = {
     _U8GT("黄沙百戰穿金甲"),
     _U8GT("不破樓蘭終不還"),
     _U8GT("abfgjlpyx"),
@@ -149,7 +164,7 @@ void loop(void) {
     } while( u8g.nextPage() );
     uiStep();
     // rebuild the picture after some delay
-    delay(5000);
+    delay(500);
 }
 
 #if ! defined(ARDUINO)

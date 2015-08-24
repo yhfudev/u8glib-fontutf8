@@ -59,11 +59,7 @@ u8gsdl_fontutf8test_SOURCES= \
     fontutf8test/fontutf8-data.h \
     fontutf8test/fontutf8test.cpp \
     src/fontutf8u8g.h \
-    src/fontutf8u8g.cpp \
-    src/tree-bsd.h \
-    src/rbtree.h \
-    src/rbtree_augmented.h \
-    src/rbtree.cpp \
+    src/fontutf8u8g.c \
     $(NULL)
 
 u8gwpi_fontutf8test_SOURCES=$(u8gsdl_fontutf8test_SOURCES)

@@ -14,7 +14,6 @@
 #else
 #include <WProgram.h>
 #endif
-#include <U8glib.h>
 
 #elif defined(U8G_RASPBERRY_PI)
 #include <unistd.h>
@@ -25,6 +24,8 @@
 #define USE_SDL 1
 #define delay(a) SDL_Delay((a)*1000)
 #endif
+
+#include <U8glib.h>
 
 #include "fontutf8u8g.h"
 #include "fontutf8-data.h"

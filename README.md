@@ -47,7 +47,7 @@ generate the font file fontutf8-data.h
     cd src
     ../tools/genpages.sh
 
-You may want to take a look the example =fontutf8test for the details.
+You may want to take a look the example fontutf8test for the details.
 
 
 

@@ -25,13 +25,13 @@ include the file in your source code:
 
 init the font data in setup() function
 
-    fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
+    u8g_SetUtf8Fonts1 (g_fontinfo, NUM_ARRAY(g_fontinfo));
 
 declare all of the string in macro _U8GT(), for example:
 
     char s[] = _U8GT("黄沙百戰穿金甲，不破樓蘭終不還。");
     // and draw the string:
-    utf8_draw (&u8g, 3, 30, s);
+    u8g_DrawUtf8Str1 (u8g.getU8g(), 3, 30, s);
 
 Prepare BDF font files, you may download a font from WQY, for example: http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
 
@@ -69,13 +69,13 @@ U8GLIB 是一个能在低配置系统中控制显示屏的库，但其中对字�
 
 在setup()函数中初始化字体数据:
 
-    fontinfo_init(g_fontinfo, NUM_ARRAY(g_fontinfo));
+    u8g_SetUtf8Fonts1 (g_fontinfo, NUM_ARRAY(g_fontinfo));
 
 将所有UTF8字符串用宏 _U8GT() 包含起来，如:
 
     char s[] = _U8GT("黄沙百戰穿金甲，不破樓蘭終不還。");
-    // 可以使用DrawUtf8Str1绘出字符串
-    DrawUtf8Str1 (&u8g, 3, 30, s);
+    // 可以使用 u8g_DrawUtf8Str1() 绘出字符串
+    u8g_DrawUtf8Str1 (u8g.getU8g(), 3, 30, s);
 
 
 准备字体文件，如: http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz

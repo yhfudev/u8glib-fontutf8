@@ -47,6 +47,9 @@ generate the font file fontutf8-data.h
     cd src
     ../tools/genpages.sh
 
+You may want to take a look the example =fontutf8test for the details.
+
+
 
 U8GLIB UTF8字符串显示中文说明
 =============================
@@ -88,3 +91,5 @@ U8GLIB 是一个能在低配置系统中控制显示屏的库，但其中对字�
 
     cd src
     ../tools/genpages.sh
+
+具体例子参见fontutf8test.

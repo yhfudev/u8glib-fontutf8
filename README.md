@@ -38,14 +38,10 @@ Prepare BDF font files, you may download a font from WQY, for example: http://we
     tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
     cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf tools/
 
-change the font file name in the bash script tools/genpages.sh
-
-    FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
-
 generate the font file fontutf8-data.h
 
-    cd src
-    ../tools/genpages.sh
+    cd your_src
+    ../tools/genpages.sh ../tools/wenquanyi_12pt.bdf
 
 You may want to take a look the example fontutf8test for the details.
 
@@ -83,13 +79,9 @@ U8GLIB 是一个能在低配置系统中控制显示屏的库，但其中对字�
     tar -xvf wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
     cp wqy-bitmapfont-gb18030/wenquanyi_12pt.bdf tools/
 
-更改 bash 脚本 tools/genpages.sh 中的字体文件名:
-
-    FN_FONT=${DN_EXEC}/wenquanyi_12pt.bdf
-
 然后在你的源代码目录下执行如下命令来生成 fontutf8-data.h
 
-    cd src
-    ../tools/genpages.sh
+    cd your_src
+    ../tools/genpages.sh ../tools/wenquanyi_12pt.bdf
 
 具体例子参见fontutf8test.

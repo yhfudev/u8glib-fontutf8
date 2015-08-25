@@ -11,7 +11,7 @@
 
 #include "fontutf8u8g.h"
 
-#if ! defined(ARDUINO)
+#if ! defined(__AVR__)
 //#define pgm_read_word_near(a) *((uint16_t *)(a))
 #define pgm_read_word_near(a) (*(a))
 #define pgm_read_byte_near(a) *((uint8_t *)(a))

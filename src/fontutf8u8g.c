@@ -15,6 +15,7 @@
 //#define pgm_read_word_near(a) *((uint16_t *)(a))
 #define pgm_read_word_near(a) (*(a))
 #define pgm_read_byte_near(a) *((uint8_t *)(a))
+#define memcpy_P memcpy
 #endif
 
 #if defined(ARDUINO)
@@ -296,11 +297,7 @@ pf_bsearch_cb_comp_fntifo_pgm (void *userdata, size_t idx, void * data_pin)
 {
     uxg_fontinfo_t * fntinfo = (uxg_fontinfo_t *) userdata;
     uxg_fontinfo_t localval;
-    localval.page  = pgm_read_word_near(&(fntinfo[idx].page));
-    localval.begin = pgm_read_byte_near(&(fntinfo[idx].begin));
-    localval.end   = pgm_read_byte_near(&(fntinfo[idx].end));
-    localval.size  = pgm_read_word_near(&(fntinfo[idx].size));
-    localval.fntdata = pgm_read_word_near(&(fntinfo[idx].fntdata));
+    memcpy_P (&localval, fntinfo + idx, sizeof (localval));
     return fontinfo_compare (&localval, data_pin);
 }
 
@@ -327,7 +324,6 @@ fontinfo_isinited1(void)
     return flag_fontinfo_inited;
 }
 
-
 static const u8g_fntpgm_uint8_t *
 fontinfo_find (wchar_t val)
 {
@@ -341,11 +337,11 @@ fontinfo_find (wchar_t val)
         return DEFAULT_FONT;
     }
 
-    //int pf_bsearch_r (void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, void *data_pinpoint, size_t *ret_idx)
     if (pf_bsearch_r ((void *)m_fntifo, m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void *)&vcmp, &idx) < 0) {
         return NULL;
     }
-    return m_fntifo[idx].fntdata;
+    memcpy_P (&vcmp, m_fntifo + idx, sizeof (vcmp));
+    return vcmp.fntdata;
 }
 
 /**

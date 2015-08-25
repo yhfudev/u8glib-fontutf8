@@ -25,6 +25,8 @@
 #define delay(a) SDL_Delay((a)*1000)
 #endif
 
+#include <assert.h>
+
 #include <U8glib.h>
 
 #include "fontutf8u8g.h"

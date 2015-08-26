@@ -19,6 +19,8 @@ They should use the updated drawStr() function or utf8_draw() to display the str
 Installation and usages
 -----------------------
 
+The first step is to compile the program in the folder tools, make sure genpages is compiled successfully.
+
 include the file in your source code:
 
     #include "fontutf8-data.h"
@@ -59,7 +61,9 @@ U8GLIB 是一个能在低配置系统中控制显示屏的库，但其中对字�
 安装使用
 --------
 
-在你的源代码中包含:
+第一步先确保在目录tools下编译好可执行文件 genpages.
+
+然后在你的源代码中包含:
 
     #include "fontutf8-data.h"
 
